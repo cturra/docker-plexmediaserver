@@ -10,9 +10,10 @@ ENV PLEX_SERVER_VERSION 0.9.12.12.1459-49fe448
 # so we can download plex
 RUN apt-get -qq update && \
     apt-get -yf install supervisor \
-                        wget
+                        wget && \
+    rm -rf /var/lib/apt/lists/*
 
-ADD conf/supervisord.conf /etc/supervisor/conf.d/plex.conf
+COPY conf/supervisord.conf /etc/supervisor/conf.d/plex.conf
 
 # download/install/config plex standalone server
 RUN wget -O /tmp/plexmediaserver.deb \
@@ -20,7 +21,7 @@ RUN wget -O /tmp/plexmediaserver.deb \
     dpkg -i /tmp/plexmediaserver.deb && \
     rm -f /tmp/plexmediaserver.deb
 
-ADD conf/default-plexmediaserver /etc/default/plexmediaserver
+COPY conf/default-plexmediaserver /etc/default/plexmediaserver
 
 EXPOSE 32400/tcp
 
