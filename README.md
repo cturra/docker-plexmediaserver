@@ -43,15 +43,7 @@ You should be able to connect to the plex server just like normal, but here is a
 quick test you can run to make sure it's listening:
 
 ```
-$ curl -IL http://localhost:32400/web
-HTTP/1.1 301 Moved Permanently
-Location: http://home.turra.ca:32400/web/index.html
-Cache-Control: public
-Content-Length: 0
-Connection: Keep-Alive
-Keep-Alive: timeout=20
-X-Plex-Protocol: 1.0
-
+$ curl -I http://localhost:32400/web/index.html
 HTTP/1.1 200 OK
 Cache-Control: no-cache
 Accept-Ranges: bytes
