@@ -26,9 +26,9 @@ Running the container
 The following example Docker run command mounts three volumes: two for media
 (movies and tv shows) and one for the plex data directory. 
 
-Additionally, I limits the number of cpu cores to 3 (cores 0-2) so that during
-transcoding tasks it doesn't spike all cores on your machine. You will want to
-adjust that according to the number of cpu cores your Docker host has.
+Additionally, the example includes limiting the number of cpu cores to 3 (cores 0-2)
+so that during transcoding tasks it doesn't spike all cores on your machine. You
+will want to adjust that according to the number of cpu cores your Docker host has.
 
 ```
 $ docker run --name=plex --net=host --cpuset-cpus="0-2" \
