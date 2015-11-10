@@ -4,7 +4,7 @@ MAINTAINER chris turra <cturra@gmail.com>
 
 ENV DEBIAN_FRONTEND     noninteractive
 ENV PLEX_ARCH           amd64
-ENV PLEX_SERVER_VERSION 0.9.12.18.1520-6833552
+ENV PLEX_SERVER_VERSION 0.9.14.0.1539-61cdd0f
 
 # install/config supervisord and grab wget
 # so we can download plex
