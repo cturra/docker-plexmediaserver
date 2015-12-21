@@ -12,9 +12,9 @@ function check_container() {
 
 # function to start new docker container
 function start_container() {
-  $DOCKER run --name=${CONTAINER_NAME} --restart=always --cpuset-cpus="0-6" --memory=16G \
-              -v /media/movies:/movies:ro -v /media/tv:/tv:ro -v /data/plex:/plex:rw \
-              -p 32400:32400 -d ${IMAGE_NAME}:latest > /dev/null
+  $DOCKER run --name=${CONTAINER_NAME} --restart=always --cpuset-cpus="0-6" --memory=16G        \
+              --net=host -v /media/movies:/movies:ro -v /media/tv:/tv:ro -v /data/plex:/plex:rw \
+              -d ${IMAGE_NAME}:latest > /dev/null
 }
 
 # check if docker container with same name is already running.
