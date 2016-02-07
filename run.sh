@@ -15,8 +15,8 @@ function start_container() {
   $DOCKER run --name=${CONTAINER_NAME} ${DOCKER_OPTS}          \
               --restart=always                                 \
               --net=host                                       \
-              --env PLEX_SERVER_VERSION=${PLEX_SERVER_VERSION} \
-              --env PLEX_SERVER_ARCH=${PLEX_SERVER_ARCH}       \
+              --env=PLEX_SERVER_VERSION=${PLEX_SERVER_VERSION} \
+              --env=PLEX_SERVER_ARCH=${PLEX_SERVER_ARCH}       \
               --volume=${LOCAL_MOVIE_DIR}:/movies:ro           \
               --volume=${LOCAL_TV_DIR}:/tv:ro                  \
               --volume=${LOCAL_PLEX_DIR}:/plex:rw              \
