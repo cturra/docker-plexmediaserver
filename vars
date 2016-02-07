@@ -1,0 +1,23 @@
+# 
+# this file contains a number of global variables used
+# by the docker container and its scripts. update any
+# of these to be appropriate for your environment.
+#
+
+IMAGE_NAME="cturra/plex"
+CONTAINER_NAME="plex"
+
+# plex media server build and architecture you want to run.
+# example: 0.9.15.2.1663-7efd046
+#          amd64
+PLEX_SERVER_VERSION=0.9.15.2.1663-7efd046
+PLEX_SERVER_ARCH=amd64
+
+# directories on the local host content will be mounted.
+LOCAL_MOVIE_DIR="/media/movies"
+LOCAL_TV_DIR="/media/tv"
+LOCAL_PLEX_DIR="/data/plex"
+
+# any additional docker run options you may want.
+# example: --cpuset-cpus="0-6"
+DOCKER_OPTS="--cpuset-cpus="0-6" --memory=16G"
