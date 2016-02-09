@@ -20,7 +20,7 @@ function start_container() {
               --volume=${LOCAL_MOVIE_DIR}:/movies:ro           \
               --volume=${LOCAL_TV_DIR}:/tv:ro                  \
               --volume=${LOCAL_PLEX_DIR}:/plex:rw              \
-              -d ${IMAGE_NAME}:latest > /dev/null
+              --detach ${IMAGE_NAME}:latest > /dev/null
 }
 
 # check if docker container with same name is already running.
