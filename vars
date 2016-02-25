@@ -10,7 +10,7 @@ CONTAINER_NAME="plex"
 # plex media server build and architecture you want to run.
 # example: 0.9.15.2.1663-7efd046
 #          amd64
-PLEX_SERVER_VERSION=0.9.15.5.1712-ba5070a
+PLEX_SERVER_VERSION=0.9.15.6.1714-7be11e1
 PLEX_SERVER_ARCH=amd64
 
 # directories on the local host content will be mounted.

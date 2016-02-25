@@ -7,8 +7,8 @@ DOWNLOAD_DIR="/plex/downloads"
 PLEX_NUM=2
 
 # ensure plex server version env variable is present
-if [ "${PLEX_SERVER_VERSION}" == "" ]; then
-  echo "[ERROR] No Plex server version defined."
+if [ "${PLEX_SERVER_VERSION}" == "" ] || [ "${PLEX_SERVER_ARCH}" == "" ]; then
+  echo "[ERROR] No Plex server version or architecture are defined."
   exit 1
 fi
 
@@ -38,7 +38,6 @@ for BUILD in $(find ${DOWNLOAD_DIR} -name plexmediaserver*.deb -print0| xargs -0
   # increase counter
   let i+=1
 done
-
 
 # update default config file
 mv -f /tmp/default-plexmediaserver /etc/default/plexmediaserver
