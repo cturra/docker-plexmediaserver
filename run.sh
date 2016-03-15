@@ -12,14 +12,21 @@ function check_container() {
 
 # function to start new docker container
 function start_container() {
+  # if defining plex uid and gid, pass it to docker
+  # otherwise, nothing to see here
+  USER_OPTS=""
+  if [[ (! -z ${PLEX_UID}) && (! -z ${PLEX_GID}) ]]; then
+    USER_OPTS="--env=PLEX_UID=${PLEX_UID} --env=PLEX_GID=${PLEX_GID}"
+  fi
+
   $DOCKER run --name=${CONTAINER_NAME} ${DOCKER_OPTS}          \
               --restart=always                                 \
               --net=host                                       \
               --env=PLEX_SERVER_VERSION=${PLEX_SERVER_VERSION} \
               --env=PLEX_SERVER_ARCH=${PLEX_SERVER_ARCH}       \
-              --volume=${LOCAL_MOVIE_DIR}:/movies:ro           \
-              --volume=${LOCAL_TV_DIR}:/tv:ro                  \
-              --volume=${LOCAL_PLEX_DIR}:/plex:rw              \
+              --volume=${LOCAL_MEDIA_DIR}:/mediabox:ro         \
+              --volume=${LOCAL_DATA_DIR}:/plex:rw              \
+              ${USER_OPTS}                                     \
               --detach ${IMAGE_NAME}:latest > /dev/null
 }
 
