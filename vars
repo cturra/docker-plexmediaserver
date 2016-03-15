@@ -8,13 +8,18 @@ IMAGE_NAME="cturra/plex"
 CONTAINER_NAME="plex"
 
 # plex media server build and architecture you want to run.
-# example: 0.9.15.2.1663-7efd046
-#          amd64
-PLEX_SERVER_VERSION=0.9.16.0.1754-23623fb
+# you can define a specific build or latest
+# example:
+# PLEX_SERVER_VERSION=0.9.15.2.1663-7efd046
+# PLEX_SERVER_VERSION=latest
+#
+# PLEX_SERVER_ARCH=amd64
+
+PLEX_SERVER_VERSION=latest
 PLEX_SERVER_ARCH=amd64
 
 # directories on the local host content will be mounted.
-LOCAL_MEDIA_DIR="/mediabox"
+LOCAL_MEDIA_DIR="/media"
 LOCAL_DATA_DIR="/data/plex"
 
 # force plex uid/gid for NFS

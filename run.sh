@@ -4,6 +4,7 @@
 source vars
 
 DOCKER=$(which docker)
+CURL=$(which curl)
 
 # function to check if container is running
 function check_container() {
@@ -19,12 +20,17 @@ function start_container() {
     USER_OPTS="--env=PLEX_UID=${PLEX_UID} --env=PLEX_GID=${PLEX_GID}"
   fi
 
+  # what version should we pass to the container?
+  if [ ${PLEX_SERVER_VERSION} == "latest" ]; then
+    PLEX_SERVER_VERSION=$(${CURL} -s https://plex.tv/downloads | grep ".deb" | grep -m 1 ${PLEX_SERVER_ARCH} | sed "s|.*plex-media-server/\(.*\)/plexmediaserver.*|\1|")
+  fi
+
   $DOCKER run --name=${CONTAINER_NAME} ${DOCKER_OPTS}          \
               --restart=always                                 \
               --net=host                                       \
               --env=PLEX_SERVER_VERSION=${PLEX_SERVER_VERSION} \
               --env=PLEX_SERVER_ARCH=${PLEX_SERVER_ARCH}       \
-              --volume=${LOCAL_MEDIA_DIR}:/mediabox:ro         \
+              --volume=${LOCAL_MEDIA_DIR}:/media:ro            \
               --volume=${LOCAL_DATA_DIR}:/plex:rw              \
               ${USER_OPTS}                                     \
               --detach ${IMAGE_NAME}:latest > /dev/null
