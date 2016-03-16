@@ -4,7 +4,11 @@
 source vars
 
 # generate a build tag based on plex server version
-BUILD_TAG=$(echo ${PLEX_SERVER_VERSION}| awk -F'.' '{print $1"."$2"."$3"."$4}')
+if [[ "${PLEX_SERVER_VERSION}" == "public" || "${PLEX_SERVER_VERSION}" == "plexpass" ]] ; then
+  BUILD_TAG=${PLEX_SERVER_VERSION}
+else
+  BUILD_TAG= $(echo ${PLEX_SERVER_VERSION}| awk -F'.' '{print $1"."$2"."$3"."$4}')
+fi
 
 DOCKER=$(which docker)
 
