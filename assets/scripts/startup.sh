@@ -1,5 +1,9 @@
 #!/bin/bash
 
+CURL=$(which curl)
+JQ=$(which jq)
+WGET=$(which wget)
+
 # directory to store plex build downloads
 DOWNLOAD_DIR="/plex/downloads"
 # plex library
@@ -9,6 +13,31 @@ SUPERVISORD_LOGS="/plex/logs/supervisor"
 
 # number of previous releases to keep in download directory
 PLEX_NUM=2
+
+plex_public () {
+  PLEX_SERVER_VERSION=$(${CURL} -s https://plex.tv/downloads | grep ".deb" | grep -m 1 ${PLEX_SERVER_ARCH} | sed "s|.*plex-media-server/\(.*\)/plexmediaserver.*|\1|")
+}
+
+plex_plexpass () {
+  # create POST payload
+  AUTH="user%5Blogin%5D=${PLEXPASS_USER}&user%5Bpassword%5D=${PLEXPASS_PASS}"
+  # auth against plex.tv and pull down X-Plex-Token
+  CURL_OPTS="-s -H X-Plex-Client-Identifier:docker -H X-Plex-Product:docker -H X-Plex-Version:0.0.1"
+  TOKEN=$(${CURL} ${CURL_OPTS} --data "${AUTH}" 'https://plex.tv/users/sign_in.json' | ${JQ} -r .user.authentication_token)
+
+  if [ ${TOKEN} == "null" ] || [ -z ${TOKEN} ]; then
+    echo "[Error] Unable to authenticate, please try again later"
+  fi
+
+  # grab downloads now
+  PLEX_SERVER_VERSION=$(${CURL} ${CURL_OPTS} -H "X-Plex-Token:${TOKEN}" 'https://plex.tv/downloads?channel=plexpass' | grep ".deb" | grep -m 1 ${PLEX_SERVER_ARCH} | sed "s|.*plex-media-server/\(.*\)/plexmediaserver.*|\1|")
+}
+
+case "${PLEX_SERVER_VERSION}" in
+"public") plex_public ;;
+"plexpass") plex_plexpass ;;
+*) echo "Using ${PLEX_SERVER_VERSION}" ;;
+esac
 
 # ensure plex server version env variable is present
 if [ "${PLEX_SERVER_VERSION}" == "" ] || [ "${PLEX_SERVER_ARCH}" == "" ]; then
@@ -26,12 +55,18 @@ fi
 if [ ! -f "${DOWNLOAD_DIR}/plexmediaserver_${PLEX_SERVER_VERSION}.deb" ]; then
   # download plex media server
   echo "downloading plexmediaserver_${PLEX_SERVER_VERSION}"
-  wget -O ${DOWNLOAD_DIR}/plexmediaserver_${PLEX_SERVER_VERSION}.deb \
+  ${WGET} -O ${DOWNLOAD_DIR}/plexmediaserver_${PLEX_SERVER_VERSION}.deb \
        -q https://downloads.plex.tv/plex-media-server/${PLEX_SERVER_VERSION}/plexmediaserver_${PLEX_SERVER_VERSION}_${PLEX_SERVER_ARCH}.deb
 fi
 
 # install latest plex media server
 dpkg -i ${DOWNLOAD_DIR}/plexmediaserver_${PLEX_SERVER_VERSION}.deb
+
+if [ $? -ne 0 ]; then
+  echo "[Error] Unable to install ${DOWNLOAD_DIR}/plexmediaserver_${PLEX_SERVER_VERSION}.deb"
+  echo "try removing plexmediaserver_${PLEX_SERVER_VERSION}.deb before restarting"
+  exit 1
+fi
 
 # clean up old builds
 i=0
