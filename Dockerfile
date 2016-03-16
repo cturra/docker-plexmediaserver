@@ -9,6 +9,8 @@ ENV DEBIAN_FRONTEND     noninteractive
 RUN apt-get -qq update             \
  && apt-get -yf install supervisor \
                         wget       \
+                        curl       \
+                        jq         \
  && rm -rf /var/lib/apt/lists/*
 
 # copy config files into container
