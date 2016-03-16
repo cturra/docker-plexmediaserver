@@ -4,7 +4,6 @@
 source vars
 
 DOCKER=$(which docker)
-CURL=$(which curl)
 
 # function to check if container is running
 function check_container() {
@@ -20,6 +19,15 @@ function start_container() {
     USER_OPTS="--env=PLEX_UID=${PLEX_UID} --env=PLEX_GID=${PLEX_GID}"
   fi
 
+  PLEXPASS_OPT=""
+  if [[ ${PLEX_SERVER_VERSION} == "plexpass" && (( -z ${PLEXPASS_USER}) || ( -z ${PLEXPASS_PASS} )) ]] ; then
+    echo "[ERROR] Plex Pass release channel defined but missing PLEXPASS_USER or PLEXPASS_PASS"
+    exit 1
+  fi
+  if [[ (! -z ${PLEXPASS_USER}) && (! -z ${PLEXPASS_PASS}) ]]; then
+    PLEXPASS_OPTS="--env=PLEXPASS_USER=${PLEXPASS_USER} --env=PLEXPASS_PASS=${PLEXPASS_PASS}"
+  fi
+
   # what version should we pass to the container?
   if [ ${PLEX_SERVER_VERSION} == "latest" ]; then
     PLEX_SERVER_VERSION=$(${CURL} -s https://plex.tv/downloads | grep ".deb" | grep -m 1 ${PLEX_SERVER_ARCH} | sed "s|.*plex-media-server/\(.*\)/plexmediaserver.*|\1|")
@@ -32,7 +40,7 @@ function start_container() {
               --env=PLEX_SERVER_ARCH=${PLEX_SERVER_ARCH}       \
               --volume=${LOCAL_MEDIA_DIR}:/media:ro            \
               --volume=${LOCAL_DATA_DIR}:/plex:rw              \
-              ${USER_OPTS}                                     \
+              ${USER_OPTS} ${PLEXPASS_OPTS}                    \
               --detach ${IMAGE_NAME}:latest > /dev/null
 }
 
