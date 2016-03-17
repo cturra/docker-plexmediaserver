@@ -7,16 +7,33 @@
 IMAGE_NAME="cturra/plex"
 CONTAINER_NAME="plex"
 
-# plex media server build and architecture you want to run.
-# example: 0.9.15.2.1663-7efd046
-#          amd64
-PLEX_SERVER_VERSION=0.9.15.6.1714-7be11e1
+# plex media server architecture you want to run.
+# PLEX_SERVER_ARCH=amd64
 PLEX_SERVER_ARCH=amd64
 
+# plex media server build or release channel you want to install
+# you can define a specific build OR
+# public to fetch the latest for public release OR
+# plexpass to fetch the latest plexpass release
+#
+# example:
+# PLEX_SERVER_VERSION=0.9.15.2.1663-7efd046
+# PLEX_SERVER_VERSION=public
+# PLEX_SERVER_VERSION=plexpass
+
+PLEX_SERVER_VERSION=public
+
+# plexpass will require a valid plexpass account
+#PLEXPASS_USER="username"
+#PLEXPASS_PASS="password"
+
 # directories on the local host content will be mounted.
-LOCAL_MOVIE_DIR="/media/movies"
-LOCAL_TV_DIR="/media/tv"
-LOCAL_PLEX_DIR="/data/plex"
+LOCAL_MEDIA_DIR="/media"
+LOCAL_DATA_DIR="/data/plex"
+
+# force plex uid/gid for NFS
+#PLEX_UID=10003
+#PLEX_GID=10000
 
 # any additional docker run options you may want.
 # example: --cpuset-cpus="0-6"
