@@ -4,11 +4,10 @@ MAINTAINER chris turra <cturra@gmail.com>
 
 ENV DEBIAN_FRONTEND     noninteractive
 
-# install/config supervisord and grab wget
+# install/config supervisord and grab curl and jq
 # so we can download plex
 RUN apt-get -qq update             \
  && apt-get -yf install supervisor \
-                        wget       \
                         curl       \
                         jq         \
  && rm -rf /var/lib/apt/lists/*
