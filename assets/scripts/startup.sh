@@ -2,7 +2,7 @@
 
 CURL=$(which curl)
 JQ=$(which jq)
-WGET=$(which wget)
+DPKG=$(which dpkg)
 
 # directory to store plex build downloads
 DOWNLOAD_DIR="/plex/downloads"
@@ -26,17 +26,18 @@ plex_plexpass () {
   TOKEN=$(${CURL} ${CURL_OPTS} --data "${AUTH}" 'https://plex.tv/users/sign_in.json' | ${JQ} -r .user.authentication_token)
 
   if [ ${TOKEN} == "null" ] || [ -z ${TOKEN} ]; then
-    echo "[Error] Unable to authenticate, please try again later"
+    echo "[INFO] Unable to authenticate, falling back to public release"
+    plex_public
+  else
+    # grab downloads now
+    PLEX_SERVER_VERSION=$(${CURL} ${CURL_OPTS} -H "X-Plex-Token:${TOKEN}" 'https://plex.tv/downloads?channel=plexpass' | grep ".deb" | grep -m 1 ${PLEX_SERVER_ARCH} | sed "s|.*plex-media-server/\(.*\)/plexmediaserver.*|\1|")
   fi
-
-  # grab downloads now
-  PLEX_SERVER_VERSION=$(${CURL} ${CURL_OPTS} -H "X-Plex-Token:${TOKEN}" 'https://plex.tv/downloads?channel=plexpass' | grep ".deb" | grep -m 1 ${PLEX_SERVER_ARCH} | sed "s|.*plex-media-server/\(.*\)/plexmediaserver.*|\1|")
 }
 
 case "${PLEX_SERVER_VERSION}" in
 "public") plex_public ;;
 "plexpass") plex_plexpass ;;
-*) echo "Using ${PLEX_SERVER_VERSION}" ;;
+*) echo "[INFO] Using ${PLEX_SERVER_VERSION}" ;;
 esac
 
 # ensure plex server version env variable is present
@@ -47,6 +48,7 @@ fi
 
 # check if /plex directory is present
 if [ ! -d "${DOWNLOAD_DIR}" ]; then
+  echo "[INFO] Creating ${DOWNLOAD_DIR}"
   mkdir ${DOWNLOAD_DIR}
 fi
 
@@ -54,17 +56,21 @@ fi
 # if not, download it
 if [ ! -f "${DOWNLOAD_DIR}/plexmediaserver_${PLEX_SERVER_VERSION}.deb" ]; then
   # download plex media server
-  echo "downloading plexmediaserver_${PLEX_SERVER_VERSION}"
-  ${WGET} -O ${DOWNLOAD_DIR}/plexmediaserver_${PLEX_SERVER_VERSION}.deb \
-       -q https://downloads.plex.tv/plex-media-server/${PLEX_SERVER_VERSION}/plexmediaserver_${PLEX_SERVER_VERSION}_${PLEX_SERVER_ARCH}.deb
+  echo "[INFO] downloading plexmediaserver_${PLEX_SERVER_VERSION}"
+  ${CURL} -s --retry 2 -o ${DOWNLOAD_DIR}/plexmediaserver_${PLEX_SERVER_VERSION}.deb \
+        https://downloads.plex.tv/plex-media-server/${PLEX_SERVER_VERSION}/plexmediaserver_${PLEX_SERVER_VERSION}_${PLEX_SERVER_ARCH}.deb
+  if [ $? -ne 0 ]; then
+    echo "[ERROR] Unable to download https://downloads.plex.tv/plex-media-server/${PLEX_SERVER_VERSION}/plexmediaserver_${PLEX_SERVER_VERSION}_${PLEX_SERVER_ARCH}.deb"
+    exit 1
+  fi
 fi
 
 # install latest plex media server
-dpkg -i ${DOWNLOAD_DIR}/plexmediaserver_${PLEX_SERVER_VERSION}.deb
+${DPKG} -i ${DOWNLOAD_DIR}/plexmediaserver_${PLEX_SERVER_VERSION}.deb
 
 if [ $? -ne 0 ]; then
-  echo "[Error] Unable to install ${DOWNLOAD_DIR}/plexmediaserver_${PLEX_SERVER_VERSION}.deb"
-  echo "try removing plexmediaserver_${PLEX_SERVER_VERSION}.deb before restarting"
+  echo "[ERROR] Unable to install ${DOWNLOAD_DIR}/plexmediaserver_${PLEX_SERVER_VERSION}.deb"
+  echo "  try removing plexmediaserver_${PLEX_SERVER_VERSION}.deb before restarting"
   exit 1
 fi
 
@@ -81,20 +87,20 @@ done
 
 # update default config file
 if [ -f /tmp/default-plexmediaserver ]; then
-  echo "copying config to /etc/default/plexmediaserver"
+  echo "[INFO] Copying config to /etc/default/plexmediaserver"
   mv -f /tmp/default-plexmediaserver /etc/default/plexmediaserver
 fi
 
 # force update plex user to match NFS user if defined
 if [[ (! -z ${PLEX_UID}) && (! -z ${PLEX_GID}) ]]; then
-  echo "setting up PLEX UID:${PLEX_UID} and GID:${PLEX_GID}"
+  echo "[INFO] Setting up PLEX UID:${PLEX_UID} and GID:${PLEX_GID}"
   groupmod -g ${PLEX_GID} plex
   usermod -u ${PLEX_UID} plex
 fi
 
 # preseed plex library and ensure permissions are setup properly
 if [ ! -d ${PLEX_LIBRARY} ]; then
-  echo "setting up PLEX Library"
+  echo "[INFO] Setting up PLEX Library at ${PLEX_LIBRARY}"
   mkdir -p -m 2775 ${PLEX_LIBRARY}
   chown -R plex:plex ${PLEX_LIBRARY}
 else
@@ -105,7 +111,7 @@ fi
 
 # ensure supervisor logfile is present
 if [ ! -f ${SUPERVISORD_LOGS}/plex.log ]; then
-  echo "setting up ${SUPERVISORD_LOGS}"
+  echo "[INFO] Setting up ${SUPERVISORD_LOGS}"
   mkdir -p ${SUPERVISORD_LOGS}
   touch ${SUPERVISORD_LOGS}/plex.log
 fi
