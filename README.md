@@ -43,7 +43,7 @@ PLEXPASS_PASS="password"
 ```
 Now go ahead and restart the container, plex will be running the latest build.
 ```
-docker restart plex
+$ docker restart plex
 ```
 
 
