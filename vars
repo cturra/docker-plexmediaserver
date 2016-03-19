@@ -8,7 +8,7 @@ IMAGE_NAME="cturra/plex"
 CONTAINER_NAME="plex"
 
 # plex media server architecture you want to run.
-# PLEX_SERVER_ARCH=amd64
+# supported: amd64 & i386
 PLEX_SERVER_ARCH=amd64
 
 # plex media server build or release channel you want to install
@@ -16,14 +16,17 @@ PLEX_SERVER_ARCH=amd64
 # public to fetch the latest for public release OR
 # plexpass to fetch the latest plexpass release
 #
-# example:
-# PLEX_SERVER_VERSION=0.9.15.2.1663-7efd046
-# PLEX_SERVER_VERSION=public
-# PLEX_SERVER_VERSION=plexpass
+# examples:
+#  PLEX_SERVER_VERSION=0.9.15.2.1663-7efd046
+#  PLEX_SERVER_VERSION=public
+#  PLEX_SERVER_VERSION=plexpass
 
 PLEX_SERVER_VERSION=public
 
-# plexpass will require a valid plexpass account
+# plexpass requires a valid plexpass account
+# more on this can be found at:
+#   https://plex.tv/subscription/about
+
 #PLEXPASS_USER="username"
 #PLEXPASS_PASS="password"
 
@@ -36,5 +39,6 @@ LOCAL_DATA_DIR="/data/plex"
 #PLEX_GID=10000
 
 # any additional docker run options you may want.
-# example: --cpuset-cpus="0-6"
-DOCKER_OPTS="--cpuset-cpus="0-6" --memory=16G"
+# examples:
+#  --cpuset-cpus="0-6"
+DOCKER_OPTS=""
