@@ -30,18 +30,21 @@ function start_container() {
 
   # what version should we pass to the container?
   if [ ${PLEX_SERVER_VERSION} == "latest" ]; then
-    PLEX_SERVER_VERSION=$(${CURL} -s https://plex.tv/downloads | grep ".deb" | grep -m 1 ${PLEX_SERVER_ARCH} | sed "s|.*plex-media-server/\(.*\)/plexmediaserver.*|\1|")
+    PLEX_SERVER_VERSION=$(${CURL} -s https://plex.tv/downloads| grep ".deb"| grep -m 1 ${PLEX_SERVER_ARCH}| sed "s|.*plex-media-server/\(.*\)/plexmediaserver.*|\1|")
   fi
 
-  $DOCKER run --name=${CONTAINER_NAME} ${DOCKER_OPTS}          \
+  $DOCKER run ${DOCKER_OPTS}                                   \
+              --name=${CONTAINER_NAME}                         \
               --restart=always                                 \
               --net=host                                       \
               --env=PLEX_SERVER_VERSION=${PLEX_SERVER_VERSION} \
               --env=PLEX_SERVER_ARCH=${PLEX_SERVER_ARCH}       \
               --volume=${LOCAL_MEDIA_DIR}:/media:ro            \
               --volume=${LOCAL_DATA_DIR}:/plex:rw              \
-              ${USER_OPTS} ${PLEXPASS_OPTS}                    \
-              --detach ${IMAGE_NAME}:latest > /dev/null
+              --detach=true                                    \
+              ${USER_OPTS}                                     \
+              ${PLEXPASS_OPTS}                                 \
+              ${IMAGE_NAME}:latest > /dev/null
 }
 
 # check if docker container with same name is already running.
@@ -49,10 +52,13 @@ if [ "$(check_container)" != "" ]; then
   # container found...
   # 1) rename existing container
   $DOCKER rename ${CONTAINER_NAME} "${CONTAINER_NAME}_orig" > /dev/null 2>&1
+
   # 2) stop exiting container
   $DOCKER stop "${CONTAINER_NAME}_orig" > /dev/null 2>&1
+
   # 3) start new container
   start_container
+
   # 4) remover existing container
   if [ "$(check_container)" != "" ]; then
     $DOCKER rm "${CONTAINER_NAME}_orig" > /dev/null 2>&1
