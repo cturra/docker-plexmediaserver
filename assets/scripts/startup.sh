@@ -22,7 +22,7 @@ plex_plexpass () {
   # create POST payload
   AUTH="user%5Blogin%5D=${PLEXPASS_USER}&user%5Bpassword%5D=${PLEXPASS_PASS}"
   # auth against plex.tv and pull down X-Plex-Token
-  CURL_OPTS="-s -H X-Plex-Client-Identifier:docker -H X-Plex-Product:docker -H X-Plex-Version:0.0.1"
+  CURL_OPTS="-s -H X-Plex-Client-Identifier:docker-plexmediaserver -H X-Plex-Product:docker-plexmediaserver -H X-Plex-Version:0.0.1"
   TOKEN=$(${CURL} ${CURL_OPTS} --data "${AUTH}" 'https://plex.tv/users/sign_in.json' | ${JQ} -r .user.authentication_token)
 
   if [ ${TOKEN} == "null" ] || [ -z ${TOKEN} ]; then
@@ -52,7 +52,7 @@ if [ ! -d "${DOWNLOAD_DIR}" ]; then
   mkdir ${DOWNLOAD_DIR}
 fi
 
-# check if plex intsall file already exists on disk
+# check if plex install file already exists on disk
 # if not, download it
 if [ ! -f "${DOWNLOAD_DIR}/plexmediaserver_${PLEX_SERVER_VERSION}.deb" ]; then
   # download plex media server
@@ -65,8 +65,21 @@ if [ ! -f "${DOWNLOAD_DIR}/plexmediaserver_${PLEX_SERVER_VERSION}.deb" ]; then
   fi
 fi
 
-# install latest plex media server
-${DPKG} -i ${DOWNLOAD_DIR}/plexmediaserver_${PLEX_SERVER_VERSION}.deb
+# check if plex already installed
+$(${DPKG} -s plexmediaserver 2>/dev/null)
+if [ $? -eq 0 ]; then
+  # compare installed version to what we think is latest
+  INSTALLED_PLEX=$(${DPKG} -s plexmediaserver | awk '/Version/ {print $2}')
+  if [ "${INSTALLED_PLEX}" == "${PLEX_SERVER_VERSION}" ]; then
+    echo "[INFO] Plex ${PLEX_SERVER_VERSION} already installed, skipping"
+  else
+    # install latest plex media server
+    ${DPKG} -i ${DOWNLOAD_DIR}/plexmediaserver_${PLEX_SERVER_VERSION}.deb
+  fi
+else
+  # plex not installed
+  ${DPKG} -i ${DOWNLOAD_DIR}/plexmediaserver_${PLEX_SERVER_VERSION}.deb
+fi
 
 if [ $? -ne 0 ]; then
   echo "[ERROR] Unable to install ${DOWNLOAD_DIR}/plexmediaserver_${PLEX_SERVER_VERSION}.deb"

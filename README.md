@@ -28,6 +28,25 @@ $ ./run.sh
 ```
 
 
+Updating Plex
+---
+This container is now semi-auto updating!  Every time the container is started it will check to see that the latest build is installed.  To enable this feature PLEX_SERVER_VERSION needs to be defined within `vars` as either 'public' or 'plexpass' with appropriate creds
+
+```
+PLEX_SERVER_VERSION=public
+```
+OR
+```
+PLEX_SERVER_VERSION=plexpass
+PLEXPASS_USER="username"
+PLEXPASS_PASS="password"
+```
+Now go ahead and restart the container, plex will be running the latest build.
+```
+$ docker restart plex
+```
+
+
 Test the container
 ---
 You should be able to connect to the plex server just like normal, but here is a
