@@ -125,7 +125,7 @@ if [ ! -d ${PLEX_LIBRARY} ]; then
   chown -R plex:plex ${PLEX_LIBRARY}
 else
   # ensure permissions are correct if we exist
-  chown -R plex:plex ${PLEX_LIBRARY}
+  find ${PLEX_LIBRARY} ! -user plex -exec chown plex:plex {} \;
   chmod 2775 ${PLEX_LIBRARY}
 fi
 
