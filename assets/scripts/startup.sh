@@ -127,7 +127,10 @@ else
   # ensure permissions are correct if we exist
   echo "[INFO] Ensuring plex library user permissions are correct"
   find ${PLEX_LIBRARY} ! -user plex -exec chown plex:plex {} \;
-  chmod 2775 ${PLEX_LIBRARY}
+
+  if [ $(stat -c %a ${PLEX_LIBRARY}) != "2775" ]; then
+    chmod 2775 ${PLEX_LIBRARY}
+  fi
 fi
 
 # ensure supervisor logfile is present
