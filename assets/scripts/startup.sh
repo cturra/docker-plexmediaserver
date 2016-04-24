@@ -123,14 +123,11 @@ if [ ! -d ${PLEX_LIBRARY} ]; then
   echo "[INFO] Setting up PLEX Library at ${PLEX_LIBRARY}"
   mkdir -p -m 2775 ${PLEX_LIBRARY}
   chown -R plex:plex ${PLEX_LIBRARY}
-else
-  # ensure permissions are correct if we exist
-  echo "[INFO] Ensuring plex library user permissions are correct"
+# plex library directory exists, but permissions are incorrect
+elif [ $(stat -c %a ${PLEX_LIBRARY}) != "2775" ]; then
+  echo "[INFO] Updating plex library user permissions"
+  chmod 2775 ${PLEX_LIBRARY}
   find ${PLEX_LIBRARY} ! -user plex -exec chown plex:plex {} \;
-
-  if [ $(stat -c %a ${PLEX_LIBRARY}) != "2775" ]; then
-    chmod 2775 ${PLEX_LIBRARY}
-  fi
 fi
 
 # ensure supervisor logfile is present
