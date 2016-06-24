@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# plex.tv base download location (url)
+DOWNLOAD_URL="https://plex.tv/api/downloads/1.json"
 # directory to store plex build downloads
 DOWNLOAD_DIR="/plex/downloads"
 # plex library
@@ -15,7 +17,7 @@ JQ=$(which jq)
 DPKG=$(which dpkg)
 
 plex_public () {
-  PLEX_SERVER_VERSION=$($CURL -s https://plex.tv/downloads| grep ".deb"| grep -m 1 ${PLEX_SERVER_ARCH}| sed "s|.*plex-media-server/\(.*\)/plexmediaserver.*|\1|")
+  PLEX_SERVER_VERSION=$($CURL -s ${DOWNLOAD_URL}| grep ".deb"| grep -m 1 ${PLEX_SERVER_ARCH}| sed "s|.*plex-media-server/\(.*\)/plexmediaserver.*|\1|")
 }
 
 plex_plexpass () {
@@ -30,7 +32,7 @@ plex_plexpass () {
     plex_public
   else
     # grab downloads now
-    PLEX_SERVER_VERSION=$($CURL ${CURL_OPTS} -H "X-Plex-Token:${TOKEN}" 'https://plex.tv/downloads?channel=plexpass'| grep ".deb"| grep -m 1 ${PLEX_SERVER_ARCH}| sed "s|.*plex-media-server/\(.*\)/plexmediaserver.*|\1|")
+    PLEX_SERVER_VERSION=$($CURL ${CURL_OPTS} -H "X-Plex-Token:${TOKEN}" "${DOWNLOAD_URL}?channel=plexpass"| grep ".deb"| grep -m 1 ${PLEX_SERVER_ARCH}| sed "s|.*plex-media-server/\(.*\)/plexmediaserver.*|\1|")
   fi
 }
 
@@ -49,7 +51,7 @@ esac
 
 # ensure plex server version env variable is present
 if [ "${PLEX_SERVER_VERSION}" == "" ] || [ "${PLEX_SERVER_ARCH}" == "" ]; then
-  echo "[ERROR] No Plex server version or architecture are defined."
+  echo "[ERROR] No Plex server version ($PLEX_SERVER_VERSION) or architecture ($PLEX_SERVER_ARCH) are defined."
   exit 1
 fi
 
