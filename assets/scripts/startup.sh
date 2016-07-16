@@ -83,11 +83,11 @@ if [ $? -eq 0 ]; then
     echo "[INFO] Plex ${PLEX_SERVER_VERSION} already installed, skipping"
   else
     # install latest plex media server
-    $DPKG -i ${DOWNLOAD_DIR}/plexmediaserver_${PLEX_SERVER_VERSION}.deb
+    $DPKG --install --force-confold ${DOWNLOAD_DIR}/plexmediaserver_${PLEX_SERVER_VERSION}.deb
   fi
 else
   # plex not installed
-  $DPKG -i ${DOWNLOAD_DIR}/plexmediaserver_${PLEX_SERVER_VERSION}.deb
+  $DPKG --install --force-confold ${DOWNLOAD_DIR}/plexmediaserver_${PLEX_SERVER_VERSION}.deb
 fi
 
 if [ $? -ne 0 ]; then
