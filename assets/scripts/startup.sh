@@ -3,11 +3,9 @@
 # plex.tv base download location (url)
 DOWNLOAD_URL="https://plex.tv/api/downloads/1.json"
 # directory to store plex build downloads
-DOWNLOAD_DIR="/plex/downloads"
+INSTALLER_DIR="/plex/installers"
 # plex library
 PLEX_LIBRARY="/plex/Library"
-# supervisord logs
-SUPERVISORD_LOGS="/plex/logs/supervisor"
 
 # number of previous releases to keep in download directory
 PLEX_NUM=2
@@ -56,17 +54,17 @@ if [ "${PLEX_SERVER_VERSION}" == "" ] || [ "${PLEX_SERVER_ARCH}" == "" ]; then
 fi
 
 # check if /plex directory is present
-if [ ! -d "${DOWNLOAD_DIR}" ]; then
-  echo "[INFO] Creating ${DOWNLOAD_DIR}"
-  mkdir ${DOWNLOAD_DIR}
+if [ ! -d "${INSTALLER_DIR}" ]; then
+  echo "[INFO] Creating ${INSTALLER_DIR}"
+  mkdir ${INSTALLER_DIR}
 fi
 
 # check if plex install file already exists on disk
 # if not, download it
-if [ ! -f "${DOWNLOAD_DIR}/plexmediaserver_${PLEX_SERVER_VERSION}.deb" ]; then
+if [ ! -f "${INSTALLER_DIR}/plexmediaserver_${PLEX_SERVER_VERSION}.deb" ]; then
   # download plex media server
-  echo "[INFO] downloading plexmediaserver_${PLEX_SERVER_VERSION}"
-  $CURL -s --retry 2 -o ${DOWNLOAD_DIR}/plexmediaserver_${PLEX_SERVER_VERSION}.deb \
+  echo "[INFO] Downloading plexmediaserver_${PLEX_SERVER_VERSION}"
+  $CURL -s --retry 2 -o ${INSTALLER_DIR}/plexmediaserver_${PLEX_SERVER_VERSION}.deb \
         https://downloads.plex.tv/plex-media-server/${PLEX_SERVER_VERSION}/plexmediaserver_${PLEX_SERVER_VERSION}_${PLEX_SERVER_ARCH}.deb
   if [ $? -ne 0 ]; then
     echo "[ERROR] Unable to download https://downloads.plex.tv/plex-media-server/${PLEX_SERVER_VERSION}/plexmediaserver_${PLEX_SERVER_VERSION}_${PLEX_SERVER_ARCH}.deb"
@@ -75,30 +73,31 @@ if [ ! -f "${DOWNLOAD_DIR}/plexmediaserver_${PLEX_SERVER_VERSION}.deb" ]; then
 fi
 
 # check if plex already installed
-$($DPKG -s plexmediaserver 2>/dev/null)
-if [ $? -eq 0 ]; then
+if [[ "$($DPKG --status plexmediaserver 2>/dev/null| grep Status\:)" == *"install ok" ]]; then
   # compare installed version to what we think is latest
   INSTALLED_PLEX=$($DPKG -s plexmediaserver| awk '/Version/ {print $2}')
   if [ "${INSTALLED_PLEX}" == "${PLEX_SERVER_VERSION}" ]; then
     echo "[INFO] Plex ${PLEX_SERVER_VERSION} already installed, skipping"
   else
     # install latest plex media server
-    $DPKG --install --force-confold ${DOWNLOAD_DIR}/plexmediaserver_${PLEX_SERVER_VERSION}.deb
+  echo "[INFO] Installing Plex ${PLEX_SERVER_VERSION}."
+    $DPKG --install --force-confold ${INSTALLER_DIR}/plexmediaserver_${PLEX_SERVER_VERSION}.deb
   fi
 else
   # plex not installed
-  $DPKG --install --force-confold ${DOWNLOAD_DIR}/plexmediaserver_${PLEX_SERVER_VERSION}.deb
+  echo "[INFO] Installing Plex ${PLEX_SERVER_VERSION}."
+  $DPKG --install --force-confold ${INSTALLER_DIR}/plexmediaserver_${PLEX_SERVER_VERSION}.deb
 fi
 
 if [ $? -ne 0 ]; then
-  echo "[ERROR] Unable to install ${DOWNLOAD_DIR}/plexmediaserver_${PLEX_SERVER_VERSION}.deb"
+  echo "[ERROR] Unable to install ${INSTALLER_DIR}/plexmediaserver_${PLEX_SERVER_VERSION}.deb"
   echo "        try removing plexmediaserver_${PLEX_SERVER_VERSION}.deb before restarting"
   exit 1
 fi
 
 # clean up old builds
 i=0
-for BUILD in $(find ${DOWNLOAD_DIR} -name plexmediaserver*.deb -print0| xargs -0 ls -t); do
+for BUILD in $(find ${INSTALLER_DIR} -name plexmediaserver*.deb -print0| xargs -0 ls -t); do
   # is counter greater than number of builds to keep?
   if [ $i -gt ${PLEX_NUM} ]; then
     rm -f $BUILD
@@ -130,13 +129,6 @@ elif [ $(stat -c %a ${PLEX_LIBRARY}) != "2775" ]; then
   echo "[INFO] Updating plex library user permissions"
   chmod 2775 ${PLEX_LIBRARY}
   find ${PLEX_LIBRARY} ! -user plex -exec chown plex:plex {} \;
-fi
-
-# ensure supervisor logfile is present
-if [ ! -f ${SUPERVISORD_LOGS}/plex.log ]; then
-  echo "[INFO] Setting up ${SUPERVISORD_LOGS}"
-  mkdir -p ${SUPERVISORD_LOGS}
-  touch ${SUPERVISORD_LOGS}/plex.log
 fi
 
 # start supervisor
