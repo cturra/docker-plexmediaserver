@@ -73,7 +73,7 @@ if [ ! -f "${INSTALLER_DIR}/plexmediaserver_${PLEX_SERVER_VERSION}.deb" ]; then
 fi
 
 # check if plex already installed
-if [[ "$($DPKG --status plexmediaserver 2>/dev/null| grep Status\:)" == *"install ok" ]]; then
+if [[ "$($DPKG --status plexmediaserver 2>/dev/null| grep Status\:)" == *"ok installed" ]]; then
   # compare installed version to what we think is latest
   INSTALLED_PLEX=$($DPKG -s plexmediaserver| awk '/Version/ {print $2}')
   if [ "${INSTALLED_PLEX}" == "${PLEX_SERVER_VERSION}" ]; then
