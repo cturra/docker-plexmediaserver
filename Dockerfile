@@ -1,8 +1,6 @@
 FROM ubuntu:16.04
 
-MAINTAINER chris turra <cturra@gmail.com>
-
-ENV DEBIAN_FRONTEND     noninteractive
+ENV DEBIAN_FRONTEND noninteractive
 
 # install/config supervisord and grab curl and jq
 # so we can download plex
