@@ -17,5 +17,8 @@ COPY assets/configs/plex/default-plexmediaserver /tmp/
 # install startup script
 COPY assets/scripts/startup.sh /opt/startup.sh
 
+# plex wants udev stuff, but doesn't actually check for udev existing.
+COPY assets/scripts/udevadm /bin/udevadm
+
 # kick off startup script
 ENTRYPOINT [ "/opt/startup.sh" ]
