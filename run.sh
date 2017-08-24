@@ -33,6 +33,13 @@ function start_container() {
     PLEX_SERVER_VERSION=$(${CURL} -s https://plex.tv/downloads| grep ".deb"| grep -m 1 ${PLEX_SERVER_ARCH}| sed "s|.*plex-media-server/\(.*\)/plexmediaserver.*|\1|")
   fi
 
+  # if defining hardware transcoding, pass device through to container.
+  # otherwise, nothing to see here.
+  DEVICE_OPTS=""
+  if [ ${PLEX_HARDWARE_TRANSCODING} ]; then
+    DEVICE_OPTS="--device=/dev/dri:/dev/dri"
+  fi
+
   $DOCKER run ${DOCKER_OPTS}                                   \
               --name=${CONTAINER_NAME}                         \
               --restart=always                                 \
@@ -42,6 +49,7 @@ function start_container() {
               --volume=${LOCAL_MEDIA_DIR}:/media:ro            \
               --volume=${LOCAL_DATA_DIR}:/plex:rw              \
               --detach=true                                    \
+              ${DEVICE_OPTS}                                   \
               ${USER_OPTS}                                     \
               ${PLEXPASS_OPTS}                                 \
               ${IMAGE_NAME}:latest > /dev/null
