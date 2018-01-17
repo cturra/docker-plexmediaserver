@@ -35,13 +35,22 @@ function start_container() {
 
   $DOCKER run ${DOCKER_OPTS}                                   \
               --name=${CONTAINER_NAME}                         \
-              --restart=always                                 \
-              --net=host                                       \
+              --hostname=${CONTAINER_HOST_NAME}                \
+              --detach=true                                    \
+              --restart=on-failure:2                           \
+              --publish=3005:3005/tcp                          \
+              --publish=8324:8324/tcp                          \
+              --publish=32400:32400/tcp                        \
+              --publish=32469:32469/tcp                        \
+              --publish=1900:1900/udp                          \
+              --publish=32410:32410/udp                        \
+              --publish=32412:32412/udp                        \
+              --publish=32413:32413/udp                        \
+              --publish=32414:32414/udp                        \
               --env=PLEX_SERVER_VERSION=${PLEX_SERVER_VERSION} \
               --env=PLEX_SERVER_ARCH=${PLEX_SERVER_ARCH}       \
               --volume=${LOCAL_MEDIA_DIR}:/media:ro            \
               --volume=${LOCAL_DATA_DIR}:/plex:rw              \
-              --detach=true                                    \
               ${USER_OPTS}                                     \
               ${PLEXPASS_OPTS}                                 \
               ${IMAGE_NAME}:latest > /dev/null
