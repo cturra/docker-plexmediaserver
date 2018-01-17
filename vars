@@ -7,6 +7,10 @@
 IMAGE_NAME="cturra/plex"
 CONTAINER_NAME="plex"
 
+# name your plex media server something other than the random
+# container id
+CONTAINER_HOST_NAME="plex"
+
 # plex media server architecture you want to run.
 # supported: amd64 & i386
 PLEX_SERVER_ARCH=amd64
