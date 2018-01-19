@@ -1,0 +1,31 @@
+version: '2.3'
+
+services:
+  plex:
+    build: .
+    image: ${IMAGE_NAME}:latest
+    container_name: ${CONTAINER_NAME}
+    restart: on-failure:2
+    environment:
+      - PLEX_SERVER_VERSION=${PLEX_SERVER_VERSION}
+      - PLEX_SERVER_ARCH=${PLEX_SERVER_ARCH}
+      - PLEXPASS_USER=${PLEXPASS_USER}
+      - PLEXPASS_PASS=${PLEXPASS_PASS}
+    hostname: ${CONTAINER_HOST_NAME}
+    ports:
+      - 3005:3005/tcp
+      - 8324:8324/tcp
+      - 32400:32400/tcp
+      - 32469:32469/tcp
+      - 1900:1900/udp
+      - 32410:32410/udp
+      - 32412:32412/udp
+      - 32413:32413/udp
+      - 32414:32414/udp
+    volumes:
+      - ${LOCAL_MEDIA_DIR}:/media:ro
+      - ${LOCAL_DATA_DIR}:/plex:rw
+
+    ## (optional) resource constraints
+    #cpuset: 0-6
+    #mem_limit: 16G
