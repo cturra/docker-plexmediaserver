@@ -1,5 +1,9 @@
 About this container
 ---
+[![Docker Build Status](https://img.shields.io/docker/build/cturra/plex.svg)](https://hub.docker.com/r/cturra/plex/)
+[![Docker Pulls](https://img.shields.io/docker/pulls/cturra/plex.svg)](https://hub.docker.com/r/cturra/plex/)
+[![Apache licensed](https://img.shields.io/badge/license-Apache-blue.svg)](https://raw.githubusercontent.com/cturra/docker-plexmediaserver/master/LICENSE)
+
 This container runs a Plex media server instance. More about Plex can be found at:
 
   https://plex.tv
