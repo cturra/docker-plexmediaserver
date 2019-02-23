@@ -28,11 +28,6 @@ function start_container() {
     PLEXPASS_OPTS="--env=PLEXPASS_USER=${PLEXPASS_USER} --env=PLEXPASS_PASS=${PLEXPASS_PASS}"
   fi
 
-  # what version should we pass to the container?
-  if [ ${PLEX_SERVER_VERSION} == "latest" ]; then
-    PLEX_SERVER_VERSION=$(${CURL} -s https://plex.tv/downloads| grep ".deb"| grep -m 1 ${PLEX_SERVER_ARCH}| sed "s|.*plex-media-server/\(.*\)/plexmediaserver.*|\1|")
-  fi
-
   $DOCKER run ${DOCKER_OPTS}                                   \
               --name=${CONTAINER_NAME}                         \
               --hostname=${CONTAINER_HOST_NAME}                \
@@ -48,7 +43,6 @@ function start_container() {
               --publish=32413:32413/udp                        \
               --publish=32414:32414/udp                        \
               --env=PLEX_SERVER_VERSION=${PLEX_SERVER_VERSION} \
-              --env=PLEX_SERVER_ARCH=${PLEX_SERVER_ARCH}       \
               --volume=${LOCAL_MEDIA_DIR}:/media:ro            \
               --volume=${LOCAL_DATA_DIR}:/plex:rw              \
               ${USER_OPTS}                                     \
