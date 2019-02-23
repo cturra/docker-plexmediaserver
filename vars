@@ -11,17 +11,11 @@ CONTAINER_NAME="plex"
 # container id
 CONTAINER_HOST_NAME="plex"
 
-# plex media server architecture you want to run.
-# supported: amd64 & i386
-PLEX_SERVER_ARCH=amd64
-
 # plex media server build or release channel you want to install
-# you can define a specific build OR
 # public to fetch the latest for public release OR
 # plexpass to fetch the latest plexpass release
 #
 # examples:
-#  PLEX_SERVER_VERSION=0.9.15.2.1663-7efd046
 #  PLEX_SERVER_VERSION=public
 #  PLEX_SERVER_VERSION=plexpass
 
