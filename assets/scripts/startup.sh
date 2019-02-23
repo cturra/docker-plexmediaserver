@@ -1,21 +1,27 @@
 #!/bin/bash
 
-# plex.tv base download location (url)
-PUBLIC_DOWNLOAD_URL="https://plex.tv/api/downloads/1.json"
-PLEXPASS_DOWNLOAD_URL="https://plex.tv/api/downloads/5.json?channel=plexpass"
+# plex.tv base download locations (url)
+PLEX_DOWNLOAD_BASE_URL="https://plex.tv/api/downloads/"
+PUBLIC_DOWNLOAD_URL="${PLEX_DOWNLOAD_BASE_URL}/1.json"
+PLEXPASS_DOWNLOAD_URL="${PLEX_DOWNLOAD_BASE_URL}/5.json?channel=plexpass"
+
 # directory to store plex build downloads
 INSTALLER_DIR="/plex/installers"
+
 # plex library
 PLEX_LIBRARY="/plex/Library"
 
 # number of previous releases to keep in download directory
 PLEX_NUM=2
 
+# curl arguments
 CURL_OPTS="-s -H X-Plex-Client-Identifier:docker-plexmediaserver -H X-Plex-Product:docker-plexmediaserver -H X-Plex-Version:0.0.1"
 
+# binary packages
 CURL=$(which curl)
 JQ=$(which jq)
 DPKG=$(which dpkg)
+
 
 plex_public () {
   DISTRO="ubuntu"
