@@ -11,7 +11,7 @@ CONTAINER_NAME="plex"
 # container id
 CONTAINER_HOST_NAME="plex"
 
-# plex media server build or release channel you want to install
+# plex media server release channel you want to install
 # public to fetch the latest for public release OR
 # plexpass to fetch the latest plexpass release
 #
