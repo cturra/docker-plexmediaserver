@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # plex.tv base download locations (url)
-PLEX_DOWNLOAD_BASE_URL="https://plex.tv/api/downloads/"
-PUBLIC_DOWNLOAD_URL="${PLEX_DOWNLOAD_BASE_URL}/1.json"
+PLEX_DOWNLOAD_BASE_URL="https://plex.tv/pms/downloads/"
+PUBLIC_DOWNLOAD_URL="${PLEX_DOWNLOAD_BASE_URL}/5.json"
 PLEXPASS_DOWNLOAD_URL="${PLEX_DOWNLOAD_BASE_URL}/5.json?channel=plexpass"
 
 # directory to store plex build downloads
@@ -24,8 +24,8 @@ DPKG=$(which dpkg)
 
 
 plex_public () {
-  DISTRO="ubuntu"
-  BUILD="linux-ubuntu-x86_64"
+  DISTRO="debian"
+  BUILD="linux-x86_64"
   URL=$(get_plex_url ${DISTRO} ${BUILD} ${PUBLIC_DOWNLOAD_URL})
   download_plex ${URL}
 }
@@ -82,6 +82,10 @@ download_plex () {
   fi
 }
 
+# update /proc/1/comm to fake out dbpkg preinst check by pretending
+# to be the official pms container.
+echo "s6-svscan" > /proc/1/comm
+
 # check which plex server version to install
 case "${PLEX_SERVER_VERSION}" in
   "plexpass")
@@ -130,6 +134,12 @@ done
 if [ -f /tmp/default-plexmediaserver ]; then
   echo "[INFO] Copying config to /etc/default/plexmediaserver"
   mv -f /tmp/default-plexmediaserver /etc/default/plexmediaserver
+fi
+
+# ensure plex user exists
+if [ "$(id -u plex > /dev/null 2>&1; echo $?)" -eq "1" ]; then
+  echo "[INFO] 'plex' user not found. Creating."
+  useradd plex
 fi
 
 # force update plex user to match NFS user if defined

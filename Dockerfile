@@ -1,13 +1,13 @@
-FROM ubuntu:16.04
+FROM ubuntu:18.04
 
-ENV DEBIAN_FRONTEND noninteractive
+ARG DEBIAN_FRONTEND=noninteractive
 
 # install/config supervisord and grab curl and jq
 # so we can download plex
 RUN apt-get -q update             \
  && apt-get -y install supervisor \
-                        curl      \
-                        jq        \
+                       curl       \
+                       jq         \
  && rm -rf /var/lib/apt/lists/*
 
 # copy config files into container
